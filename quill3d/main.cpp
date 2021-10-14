@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <memory>
 #include <cassert>
+#include "compilation_defines.h"
 #include "mpi.h"
 #include "main.h"
 #include "maxwell.h"
@@ -84,7 +85,11 @@ std::string data_folder;
 bool catching_enabled;
 bool dump_photons;
 bool verbose_logging = true;
+#ifdef QUILL_NOQED
+const bool qed_enabled = false;
+#else
 bool qed_enabled = true;
+#endif
 int init();
 
 std::vector<double> ne_profile_x_coords;
@@ -248,7 +253,11 @@ void write_deleted_particles(bool write_p, bool write_ph)
                         fout_deleted_e << dx*((*it).x + x0_sr[n])/(2*PI) << endl;
                         fout_deleted_e << dy*((*it).y)/(2*PI) << endl << dz*((*it).z)/(2*PI) << endl;
                         fout_deleted_e << (*it).ux << endl << (*it).uy << endl <<(*it).uz << endl;
+                        #ifdef QUILL_NOQED
+                        fout_deleted_e << (*it).g << endl << 0.0 << endl;
+                        #else
                         fout_deleted_e << (*it).g << endl << (*it).chi << endl;
+                        #endif
                     }
                 }
                 else if (write_p && (*it).cmr == 1)
@@ -261,7 +270,11 @@ void write_deleted_particles(bool write_p, bool write_ph)
                         fout_deleted_p << dx*((*it).x + x0_sr[n])/(2*PI) << endl;
                         fout_deleted_p << dy*((*it).y)/(2*PI) << endl << dz*((*it).z)/(2*PI) << endl;
                         fout_deleted_p << (*it).ux << endl << (*it).uy << endl <<(*it).uz << endl;
+                        #ifdef QUILL_NOQED
+                        fout_deleted_p << (*it).g << endl << 0.0 << endl;
+                        #else
                         fout_deleted_p << (*it).g << endl << (*it).chi << endl;
+                        #endif
                     }
                 }
                 else if (write_ph && (*it).cmr == 0)
@@ -278,7 +291,11 @@ void write_deleted_particles(bool write_p, bool write_ph)
                         fout_deleted_ph << dx*((*it).x + x0_sr[n])/(2*PI) << endl;
                         fout_deleted_ph << dy*((*it).y)/(2*PI) << endl << dz*((*it).z)/(2*PI) << endl;
                         fout_deleted_ph << (*it).ux << endl << (*it).uy << endl <<(*it).uz << endl;
+                        #ifdef QUILL_NOQED
+                        fout_deleted_ph << (*it).g << endl << 0.0 << endl;
+                        #else
                         fout_deleted_ph << (*it).g << endl << (*it).chi << endl;
+                        #endif
                     }
                 }
                 else
@@ -295,7 +312,11 @@ void write_deleted_particles(bool write_p, bool write_ph)
                                 fout_deleted_i[j] << dx*((*it).x + x0_sr[n])/(2*PI) << endl;
                                 fout_deleted_i[j] << dy*((*it).y)/(2*PI) << endl << dz*((*it).z)/(2*PI) << endl;
                                 fout_deleted_i[j] << (*it).ux << endl << (*it).uy << endl <<(*it).uz << endl;
+                                #ifdef QUILL_NOQED
+                                fout_deleted_i[j] << (*it).g << endl << 0.0 << endl;
+                                #else
                                 fout_deleted_i[j] << (*it).g << endl << (*it).chi << endl;
+                                #endif
                             }
                             break;
                         }
@@ -636,7 +657,11 @@ void write_spectrum_phasespace(bool write_p, bool write_ph)
                                     fout_phasespace<<dy*(current->y)/(2*PI)<<"\n"<<dz*(current->z)/(2*PI)<<"\n";
                                     fout_phasespace<<current->ux<<"\n"<<current->uy<<"\n"<<current->uz<<"\n";
                                     fout_phasespace<<current->g<<"\n";
-                                    fout_phasespace<<current->chi<<"\n";
+                                    #ifdef QUILL_NOQED 
+                                    fout_phasespace << 0.0 << "\n";
+                                    #else
+                                    fout_phasespace << current->chi <<"\n";
+                                    #endif
                                 }
                             }
                             else if (current->cmr==1 && write_p)
@@ -653,7 +678,11 @@ void write_spectrum_phasespace(bool write_p, bool write_ph)
                                     fout_phasespace_p<<dy*(current->y)/(2*PI)<<"\n"<<dz*(current->z)/(2*PI)<<"\n";
                                     fout_phasespace_p<<current->ux<<"\n"<<current->uy<<"\n"<<current->uz<<"\n";
                                     fout_phasespace_p<<current->g<<"\n";
-                                    fout_phasespace_p<<current->chi<<"\n";
+                                    #ifdef QUILL_NOQED 
+                                    fout_phasespace_p << 0.0 << "\n";
+                                    #else
+                                    fout_phasespace_p << current->chi <<"\n";
+                                    #endif
                                 }
                             }
                             else if (current->cmr==0 && write_ph)
@@ -670,7 +699,11 @@ void write_spectrum_phasespace(bool write_p, bool write_ph)
                                     fout_phasespace_ph<<dy*(current->y)/(2*PI)<<"\n"<<dz*(current->z)/(2*PI)<<"\n";
                                     fout_phasespace_ph<<current->ux<<"\n"<<current->uy<<"\n"<<current->uz<<"\n";
                                     fout_phasespace_ph<<current->g<<"\n";
-                                    fout_phasespace_ph<<current->chi<<"\n";
+                                    #ifdef QUILL_NOQED 
+                                    fout_phasespace_ph << 0.0 << "\n";
+                                    #else
+                                    fout_phasespace_ph << current->chi << "\n";
+                                    #endif
                                 }
                             }
                             else
@@ -693,7 +726,11 @@ void write_spectrum_phasespace(bool write_p, bool write_ph)
                                             fout_phasespace_i[m]<<dy*(current->y)/(2*PI)<<"\n"<<dz*(current->z)/(2*PI)<<"\n";
                                             fout_phasespace_i[m]<<current->ux<<"\n"<<current->uy<<"\n"<<current->uz<<"\n";
                                             fout_phasespace_i[m]<<current->g<<"\n";
+                                            #ifdef QUILL_NOQED
+                                            fout_phasespace_i[m] << 0.0 << "\n";
+                                            #else
                                             fout_phasespace_i[m]<<current->chi<<"\n";
+                                            #endif
                                         }
                                         m = n_ion_populations;
                                     }
@@ -1965,9 +2002,13 @@ void print_number_of_quasiparticles()
 
 void register_mpi_particle() {
     // register MPI_PARTICLE type to be able to send particles
-    // struct particle has 10 doubles and 1 int
+    // struct particle has 10 or 9 doubles and 1 int
     const int items = 2;
+    #ifdef QUILL_NOQED
+    int blocklengths[items] = {9, 1};
+    #else
     int blocklengths[items] = {10, 1};
+    #endif
     MPI_Datatype types[items] = {MPI_DOUBLE, MPI_INT};
     MPI_Aint offsets[items];
     offsets[0] = offsetof(particle, x);
@@ -2242,6 +2283,12 @@ int main(int argc, char * argv[])
         MPI_Send(&pid, 1, MPI_UNSIGNED_LONG, 0, 0, MPI_COMM_WORLD);
         MPI_Send(hostname, hostname_len + 1, MPI_CHAR, 0, 1, MPI_COMM_WORLD);
     }
+
+    #ifdef QUILL_NOQED
+    if (mpi_rank == 0) {
+        cout << TERM_YELLOW << "Note: Quill is compiled with QUILL_NOQED, quantum effects are not available" << TERM_NO_COLOR << endl;
+    }
+    #endif
 
     register_mpi_particle();
 
@@ -2545,7 +2592,8 @@ bool find_boolean(var * element, string name, bool default_value) {
         return false;
     } else {
         if (current->units != "") {
-            cout << TERM_RED << "Value [" << current->units << "] for [" << name << "] is incorrect, using the default value" << TERM_NO_COLOR << endl;
+            cout << TERM_RED << "Value [" << current->units << "] for [" << name << "] is incorrect, using the default value ["
+                 << (default_value ? "true" : "false") << "]" << TERM_NO_COLOR << endl;
         }
         return default_value;
     }
@@ -3584,10 +3632,13 @@ int init()
         catching_enabled = true;
     }
 
-    current = find("qed", first);
-    if (current->units == "off") {
-        qed_enabled = false;
+    #ifdef QUILL_NOQED
+    if (find_boolean(first, "qed", false)) {
+        cout << TERM_RED << "Quill is compiled with QUILL_NOQED, but QED is enabled in the config. QED effects will not happen." << TERM_NO_COLOR << endl;
     }
+    #else
+    qed_enabled = find_boolean(first, "qed", true);
+    #endif
 
     current = find("dump_photons", first);
     if (current->units == "on")
